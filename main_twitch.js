@@ -97,11 +97,13 @@ let acceptingVotes = false;
 let userVotes = [{}, {}];
 
 function openVoting() {
+  console.log("Opening voting!");
   userVotes = [{}, {}];
   acceptingVotes = true;
 }
 
 function closeVoting() {
+  console.log("Closing voting!");
   acceptingVotes = false;
 }
 
@@ -115,8 +117,8 @@ function queryVotes() {
 
 function accumVotes(voteDict) {
   let votes = [0, 0, 0, 0];
-  for (uname in userVotes) {
-    let v = userVotes[uname];
+  for (uname in voteDict) {
+    let v = voteDict[uname];
     if (v >= 0 && v < 4) {
       votes[v] += 1;
     }
@@ -128,8 +130,8 @@ function getVotes() {
   return [accumVotes(userVotes[0]), accumVotes(userVotes[1])];
 }
 
-const topChoices = {"a": 0, "b": 1, "c": 2, "d": 3};
-const botChoices = {"1": 0, "2": 1, "3": 2, "4": 3};
+const topChoices = { "1": 0, "2": 1, "3": 2, "4": 3};
+const botChoices = {"a": 0, "b": 1, "c": 2, "d": 3};
 
 function handleVote(username, v) {
   // Generously try to accept anything like:
@@ -142,6 +144,7 @@ function handleVote(username, v) {
   if(firstPart.length == 0 || firstPart.length > 2) {
     return;
   }
+  console.log(firstPart);
   for(charpos in firstPart) {
     let char = v[charpos].toLowerCase();
     if(char in topChoices) {

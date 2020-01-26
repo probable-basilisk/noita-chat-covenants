@@ -30,8 +30,8 @@ function Covenant:init(condition, outcome)
   if condition and outcome then
     self:start(condition, outcome)
   else
-    self.condition = Placeholder("(" .. table.concat(make_vote_keys(false), ",") .. ")")
-    self.outcome = Placeholder("(" .. table.concat(make_vote_keys(true), ",") .. ")")
+    self.condition = Placeholder("VVV")
+    self.outcome = Placeholder("^^^")
   end
 end
 

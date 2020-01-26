@@ -72,7 +72,7 @@ end
 local function find_winner(options)
   local max_votes, best_option = -1, nil
   for _, option in ipairs(options) do
-    if option.votes or 0 > max_votes then
+    if (option.votes or 0) > max_votes then
       max_votes = option.votes or 0
       best_option = option
     end
@@ -94,6 +94,7 @@ function do_winner()
   local condition = find_winner(conditions)
   conjunction:start(condition, outcome)
   push_covenant(conjunction)
+  GamePrintImportant("A New Covenant!", conjunction:get_text())
 end
 
 function random_conjunction()
@@ -107,7 +108,6 @@ time_between_covenants = 120
 function update_vote_display()
   vote_gui_lines = {
     ("-- VOTE: %ds --"):format(vote_time_left),
-    conjunction:get_text()
   }
   local outcome_keys = make_vote_keys(false)
   local condition_keys = make_vote_keys(true)
@@ -118,11 +118,11 @@ function update_vote_display()
       ("%s> %s (%d)"):format(outcome_keys[idx], outcome:get_text(), outcome.votes) 
     )
   end
-  table.insert(vote_gui_lines, "-- -- -- -- --")
+  table.insert(vote_gui_lines, conjunction:get_text())
   for idx, condition in ipairs(conditions) do
     table.insert(
       vote_gui_lines, 
-      ("%s> %s (%d)"):format(condition_keys[idx], condition:get_text(), condition.votes) 
+      ("%s> %s (%d)"):format(condition_keys[idx], condition:get_vote_text(), condition.votes) 
     )
   end
 end
