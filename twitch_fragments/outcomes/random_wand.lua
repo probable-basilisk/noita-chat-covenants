@@ -4,6 +4,7 @@ register_outcome{
   good = true,
   comment = "todo",
   rarity = 18,
+  cooldown = 60*60*5,
   apply = function()
     local rnd = Random(0, 1000)
     if rnd < 200 then

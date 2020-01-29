@@ -33,7 +33,7 @@ outcomes = {}
 conditions = {}
 
 function update_covenants()
-  covenant_gui_lines = {#covenants .. " COVENANTS: "}
+  covenant_gui_lines = {#covenants .. "/" .. max_covenants .. " COVENANTS: "}
   local player = get_player()
   if not player then
     covenant_gui_lines[1] = "(POLYMORPHED!)"
@@ -41,7 +41,13 @@ function update_covenants()
   local new_covenants = {}
   for idx, covenant in ipairs(covenants) do
     table.insert(covenant_gui_lines, "> " .. covenant:get_text())
-    if player then covenant:tick() end
+    if player then 
+      local happy, err = pcall(covenant.tick, covenant)
+      if not happy then 
+        pcall(covenant.stop, covenant)
+        print("Covenant error: " .. err) 
+      end
+    end
     if covenant:is_live() then table.insert(new_covenants, covenant) end
   end
   covenants = new_covenants
@@ -89,11 +95,25 @@ local function find_winner(options)
   return best_option
 end
 
+function remove_covenant()
+  if #covenants == 0 then return end
+  local idx = 1
+  -- try to find an 'each' covenant to remove,
+  -- because otherwise they have no expiry
+  for cand_id, cand in ipairs(covenants) do
+    if cand.kind == "each" then
+      idx = cand_id
+      break
+    end
+  end
+  local c = covenants[idx]
+  c:stop()
+  table.remove(covenants, idx)
+end
+
 function push_covenant(covenant)
   while #covenants >= max_covenants do
-    local c = covenants[1]
-    c:stop()
-    table.remove(covenants, 1)
+    remove_covenant()
   end
   table.insert(covenants, covenant)
 end
@@ -107,7 +127,7 @@ function do_winner()
 end
 
 function random_conjunction()
-  if math.random() < 1.5 then
+  if math.random() < 0.5 then
     return EachCovenant()
   else
     return UntilCovenant()
@@ -141,7 +161,7 @@ function setup_vote()
   outcomes = draw_n_generators(all_outcomes, num_vote_options, function(candidate)
     return conjunction:filter_outcome(candidate)
   end)
-  conditions = draw_n_generators(all_conditions, num_vote_options)
+  conditions = draw_n_generators(all_conditions[conjunction.kind], num_vote_options)
 end
 
 function wait_opportunity()

@@ -1,6 +1,9 @@
+local SPAWN_COOLDOWN = 600 -- let's not go overboard spawning things
+
 register_outcome{
   text = "Angry Steve",
   subtext = "Steve is out to getcha!",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 20,
@@ -12,6 +15,7 @@ register_outcome{
 register_outcome{
   text = "Big Worm",
   subtext = "That's one big worm",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 30,
@@ -23,6 +27,7 @@ register_outcome{
 register_outcome{
   text = "Biggest Worm",
   subtext = "OH NONONONO",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 15,
@@ -34,6 +39,7 @@ register_outcome{
 register_outcome{
   text = "A Couple Worms",
   subtext = "Just a couple",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "Spawns 2 worms",
   rarity = 40,
@@ -46,6 +52,7 @@ register_outcome{
 register_outcome{
   text = "Deers",
   subtext = "Oh dear...",
+  cooldown = SPAWN_COOLDOWN,
   unknown = true,
   comment = "Spawns some normal deers with deercoys mixed in",
   rarity = 50,
@@ -58,6 +65,7 @@ register_outcome{
 register_outcome{
   text = "THE MOIST MOB",
   subtext = "Slurp slurp slurp",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 34,
@@ -70,6 +78,7 @@ register_outcome{
 register_outcome{
   text = "plaGUEE Rats",
   subtext = "Hail the rat king",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "Spawns a bunch of normal rats, plague rats and 1 to 2 skullrats",
   rarity = 36,
@@ -83,6 +92,7 @@ register_outcome{
 register_outcome{
   text = "Ultimate Killer",
   subtext = "Get ready...",
+  cooldown = SPAWN_COOLDOWN,
   unknown = true,
   comment = "Spawns the ultimate killer",
   rarity = 1,
@@ -94,6 +104,7 @@ register_outcome{
 register_outcome{
   text = "Can of Worms",
   subtext = "That's annoying",
+  cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 45.5,

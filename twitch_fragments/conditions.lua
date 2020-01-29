@@ -1,4 +1,6 @@
 all_conditions = {}
+all_conditions['each'] = {}
+all_conditions['until'] = {}
 
 local function check_stat(keyname)
   return function()
@@ -38,21 +40,27 @@ function StatCondition:get_vote_text()
 end
 
 local stats = {
-  {"visit %d new locations", "places_visited", 1, 1},
-  {"pick up %d gold", "gold_all", 1, 10},
-  {"pick up %d hearts", "heart_containers", 1, 1},
-  {"pick up %d items", "items", 1, 1},
-  {"shoot %d times", "projectiles_shot", 1, 10},
-  {"kick %d times", "kicks", 1, 10},
-  {"kill %d enemies", "enemies_killed", 1, 5}
+  {"visit %d new locations", "places_visited", 1, 2},
+  {"pick up %d gold", "gold_all", 10, 1000},
+  {"pick up %d hearts", "heart_containers", false, 1},
+  {"pick up %d items", "items", 1, 10},
+  {"shoot %d times", "projectiles_shot", 10, false},
+  {"kick %d times", "kicks", 1, false},
+  {"kill %d enemies", "enemies_killed", 1, 50}
 }
 
 for _, info in ipairs(stats) do
-  local fstr, keyname, min_delta, max_delta = unpack(info)
-  table.insert(all_conditions, function(d)
-    local delta = d or math.random(min_delta, max_delta)
-    return StatCondition(keyname, fstr, delta)
-  end)
+  local fstr, keyname, each_delta, until_delta = unpack(info)
+  if each_delta then
+    table.insert(all_conditions['each'], function(d)
+      return StatCondition(keyname, fstr, each_delta)
+    end)
+  end
+  if until_delta then
+    table.insert(all_conditions['until'], function(d)
+      return StatCondition(keyname, fstr, until_delta)
+    end)
+  end
 end
 
 MoveCondition = Condition:extend("MoveCondition")
@@ -96,18 +104,24 @@ function MoveCondition:get_vote_text()
 end
 
 local moves = {
-  {"descend %d units", 0, 1, true, 100, 1000},
-  {"ascend %d units", 0, -1, true, 100, 1000},
-  {"travel %d units", 1.0, 1.0, false, 100, 1000},
-  {"move horizontally %d units", 1.0, 0.0, false, 100, 1000}
+  {"descend %d units", 0, 1, true, 200, 3000},
+  {"ascend %d units", 0, -1, true, 200, 3000},
+  {"travel %d units", 1.0, 1.0, false, 200, 3000},
+  {"move horizontally %d units", 1.0, 0.0, false, 200, 3000}
 }
 
 for _, info in ipairs(moves) do
-  local fstr, xmult, ymult, clamp, min_delta, max_delta = unpack(info)
-  table.insert(all_conditions, function(d)
-    local delta = d or math.random(min_delta, max_delta)
-    return MoveCondition(fstr, xmult, ymult, clamp, delta)
-  end)
+  local fstr, xmult, ymult, clamp, each_delta, until_delta = unpack(info)
+  if each_delta then
+    table.insert(all_conditions['each'], function(d)
+      return MoveCondition(fstr, xmult, ymult, clamp, each_delta)
+    end)
+  end
+  if until_delta then
+    table.insert(all_conditions['until'], function(d)
+      return MoveCondition(fstr, xmult, ymult, clamp, until_delta)
+    end)
+  end
 end
 
 function is_inventory_open()
@@ -142,16 +156,16 @@ function InventoryCondition:check()
 end
 
 function InventoryCondition:get_text()
-  return self.fstr:format(self.target - self.open_count)
+  --self.fstr:format(self.target - self.open_count)
+  return "open inventory"
 end
 
 function InventoryCondition:get_vote_text()
   return self.fstr:format(self.target)
 end
 
-table.insert(all_conditions, function(d)
-  local delta = d or math.random(1, 10)
-  return InventoryCondition(delta)
+table.insert(all_conditions['each'], function(d)
+  return InventoryCondition(1)
 end)
 
 local function is_jetpack_being_used()
@@ -192,9 +206,8 @@ function JetpackCondition:get_vote_text()
   return self.fstr:format(self.target)
 end
 
-table.insert(all_conditions, function(d)
-  local delta = d or math.random(1, 1000)
-  return JetpackCondition(delta)
+table.insert(all_conditions['each'], function(d)
+  return JetpackCondition(100)
 end)
 
 -- Check stains:
@@ -202,3 +215,5 @@ local function get_stains()
   local se = EntityGetFirstComponent(get_player(), "StatusEffectDataComponent")
   return get_vector_value(se, "stain_effects")
 end
+
+--TODO

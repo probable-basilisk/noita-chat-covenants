@@ -34,6 +34,7 @@ function Covenant:init(condition, outcome)
     self.outcome = Placeholder("^^^")
   end
 end
+Covenant.kind = "generic"
 
 function Covenant:start(condition, outcome)
   self.outcome = outcome
@@ -43,6 +44,7 @@ function Covenant:start(condition, outcome)
 end
 
 function Covenant:stop()
+  self.alive = false
 end
 
 function Covenant:is_live()
@@ -56,6 +58,8 @@ function Covenant:filter_outcome()
 end
 
 UntilCovenant = Covenant:extend("UntilCovenant")
+UntilCovenant.kind = "until"
+
 function UntilCovenant:start(...)
   UntilCovenant.super.start(self, ...)
   if not (self.outcome.start and self.outcome.stop) then
@@ -96,6 +100,8 @@ function UntilCovenant:filter_outcome(outcome)
 end
 
 OnceCovenant = Covenant:extend("OnceCovenant")
+OnceCovenant.kind = "once"
+
 function OnceCovenant:tick()
   if not self.alive then return end
   if self.condition:check() then
@@ -113,14 +119,34 @@ function OnceCovenant:filter_outcome(outcome)
 end
 
 EachCovenant = Covenant:extend("EachCovenant")
+EachCovenant.kind = "each"
+
+function EachCovenant:init(...)
+  EachCovenant.super.init(self, ...)
+  self._cooldown = 0
+  self._should_fire = false
+end
+
 function EachCovenant:tick()
-  if self.condition:check() then
+  -- basically the logic here with "_should_fire" is that if you
+  -- trigger the condition *during* the cooldown, it'll buffer one
+  -- additional outcome to happen right when the cooldown ends
+  self._cooldown = self._cooldown - 1
+  if self.condition:check() then self._should_fire = true end
+  if self._should_fire and self._cooldown <= 0 then
+    self._cooldown = self.outcome.cooldown or 60
     self.outcome:apply()
+    self._should_fire = false
   end
 end
 
 function EachCovenant:get_text()
-  return self.outcome.text .. " EACH TIME " .. self.condition:get_text()
+  local text = self.outcome.text .. " EACH TIME " .. self.condition:get_text()
+  if self._cooldown > 0 then
+    text = "[" .. self._cooldown .. "] " .. text
+    if self._should_fire then text = "+" .. text end
+  end
+  return text
 end
 
 function EachCovenant:filter_outcome(outcome)

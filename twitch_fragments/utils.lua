@@ -82,6 +82,10 @@ function from_above(pos, options)
   end
 end
 
+function above_player(options)
+  return from_above(player_pos, options)
+end
+
 function spawn(options)
   local entities = {}
   for i = 1, options.count or 1 do

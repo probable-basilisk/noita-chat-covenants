@@ -1,9 +1,18 @@
+if not perk_list then 
+  print("DOING PERKS????")
+  dofile("data/scripts/lib/utilities.lua")
+  dofile("data/scripts/perks/perk_list.lua")
+  dofile("data/scripts/perks/perk.lua")
+  print("PERK????", tostring(perk_list))
+end
+
 register_outcome{
   text = "Random Perk",
   subtext = "Lucky... or maybe not?",
   unknown = true,
   comment = "todo",
   rarity = 10,
+  cooldown = 60*60*5,
   apply = function()
     local perk = rand_choice(perk_list)
     -- reroll useless perk

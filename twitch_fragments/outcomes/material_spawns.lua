@@ -21,6 +21,8 @@ register_outcome{
   end,
 }
 
+-- Seas hard-crash the game for some reason!
+--[[
 register_outcome{
   text = "Sea of acid",
   subtext = "Who thought this was a good idea",
@@ -36,34 +38,28 @@ register_outcome{
     local emitter_comp = EntityGetFirstComponent(sea, "MaterialSeaSpawnerComponent")
     ComponentSetValue(emitter_comp, "material", self.material or "acid")
   end,
-}
+}]]
 
---[[
 register_outcome{
-  text = "Random Flask",
+  text = "Flask of ...",
   subtext = "What's in it?",
   good = true,
   comment = "todo",
   rarity = 15,
-  apply = function()
-    local potion_material = ""
-    if (Random(0, 100) <= 75) then
-    if (Random(0, 100000) <= 50) then
-    potion_material = "magic_liquid_hp_regeneration"
-    elseif (Random(200, 100000) <= 250) then
-    potion_material = "purifying_powder"
-    else
-    potion_material = random_from_array(potion_materials_magic)
-    end
-    else
-    potion_material = random_from_array(potion_materials_standard)
-    end
-    local x, y = get_player_pos()
-    -- just go ahead and assume cheatgui is installed
-    local entity = EntityLoad("data/hax/potion_empty.xml", x, y)
-    AddMaterialInventoryMaterial(entity, potion_material, 1000)
+  mutate = function(self)
+    self.material, self.text = unpack(rand_choice(LIQUIDS))
+    self.text = "Flask of " .. self.text
   end,
-}]]
+  apply = function(self)
+    local quantity = 1000
+    if math.random() < 0.1 then
+      quantity = 10000 -- LOL
+    end
+    -- just go ahead and assume cheatgui is installed
+    local entity = spawn{"data/hax/potion_empty.xml"}
+    AddMaterialInventoryMaterial(entity, self.material, quantity)
+  end,
+}
 
 --[[
 register_outcome{
@@ -103,36 +99,23 @@ register_outcome{
   end,
 }]]
 
---[[
 register_outcome{
-  text = "Rainy Day",
+  text = "Rain of ...",
   subtext = "Some rain on your parade",
-  unknown = true,
   comment = "todo",
   rarity = 20,
-  apply = function()
-    local material_choices = { "blood", "radioactive_liquid", "water", "slime", "magic_liquid_charm" };
-    local min_distance = 24;
-    local max_distance = 36;
-    for _,player_entity in pairs( get_players() ) do
-    local x, y = EntityGetTransform( player_entity );
-    SetRandomSeed( GameGetFrameNum(), x + y );
-    local chosen_material = material_choices[ Random( 1, #material_choices ) ];
-    local distance = Random( min_distance, max_distance );
-    local angle = math.rad(-90);
-    local sx, sy = x + math.cos( angle ) * distance, y + math.sin( angle ) * distance;
-    local cloud = EntityLoad( "data/entities/projectiles/deck/cloud_water.xml", sx, sy );
-    local cloud_children = EntityGetAllChildren( cloud ) or {};
-    for _,cloud_child in pairs( cloud_children ) do
-    local child_components = FindComponentByType( cloud_child, "ParticleEmitterComponent" ) or {};
-    for _,component in pairs( child_components ) do
-    if ComponentGetValue( component, "emitted_material_name" ) == "water" then
-    ComponentSetValue( component, "emitted_material_name", chosen_material );
-    break;
-    end
-    end
-    end
+  mutate = function(self)
+    self.material, self.text = unpack(rand_choice(LIQUIDS))
+    self.text = "Rain of " .. self.text
+  end,
+  apply = function(self)
+    local cloud = spawn{"data/entities/projectiles/deck/cloud_water.xml", position=above_player{}}
+    for _, child in pairs(EntityGetAllChildren(cloud) or {}) do
+      for _, comp in pairs(EntityGetComponent(child, "ParticleEmitterComponent" ) or {} ) do
+        if ComponentGetValue(comp, "emitted_material_name" ) == "water" then
+          ComponentSetValue(comp, "emitted_material_name", self.material)
+        end
+      end
     end
   end,
 }
-]]
