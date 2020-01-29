@@ -7,8 +7,11 @@ ypos_covenant = ypos_covenant or 30
 xpos_vote = xpos_vote or 70
 ypos_vote = ypos_vote or 30
 
-random_on_no_votes = true
 max_covenants = 3
+
+vote_time_left = 0
+max_vote_time = 6000
+time_between_covenants = 120
 
 function draw_twitch_display()
   GuiStartFrame( gui )
@@ -24,9 +27,7 @@ function draw_twitch_display()
   GuiLayoutEnd( gui )
 end
 
-covenants = {
-  EachCovenant(all_conditions[5](), all_outcomes[1]())
-}
+covenants = {}
 
 outcomes = {}
 conditions = {}
@@ -46,15 +47,22 @@ function update_covenants()
   covenants = new_covenants
 end
 
-function draw_n_generators(generators, n)
+function draw_n_generators(generators, n, filter)
   local candidates = {}
   for idx, option in ipairs(generators) do
-    candidates[idx] = {math.random(), option}
+    if (not filter) or filter(option) then
+      if type(option) == "table" and option.mutate then 
+        option:mutate()
+      end
+      table.insert(candidates, {math.random(), option})
+    end
   end
   table.sort(candidates, function(a, b) return a[1] < b[1] end)
   local res = {}
   for idx = 1, n do 
-    res[idx] = candidates[idx][2]() 
+    local v = candidates[idx][2]
+    if type(v) == "function" then v = v() end
+    res[idx] = v
     res[idx].votes = 0
   end
   return res
@@ -67,6 +75,7 @@ function set_votes(outcome_votes, condition_votes)
   for idx, condition in ipairs(conditions) do
     condition.votes = condition_votes[idx] or 0
   end
+  return UNPRINTABLE_RESULT
 end
 
 local function find_winner(options)
@@ -90,7 +99,7 @@ function push_covenant(covenant)
 end
 
 function do_winner()
-  local outcome = find_winner(outcomes)
+  local outcome = copy_outcome(find_winner(outcomes))
   local condition = find_winner(conditions)
   conjunction:start(condition, outcome)
   push_covenant(conjunction)
@@ -98,12 +107,12 @@ function do_winner()
 end
 
 function random_conjunction()
-  return EachCovenant()
+  if math.random() < 1.5 then
+    return EachCovenant()
+  else
+    return UntilCovenant()
+  end
 end
-
-vote_time_left = 0
-max_vote_time = 60
-time_between_covenants = 120
 
 function update_vote_display()
   vote_gui_lines = {
@@ -115,7 +124,7 @@ function update_vote_display()
   for idx, outcome in ipairs(outcomes) do
     table.insert(
       vote_gui_lines, 
-      ("%s> %s (%d)"):format(outcome_keys[idx], outcome:get_text(), outcome.votes) 
+      ("%s> %s (%d)"):format(outcome_keys[idx], outcome.text, outcome.votes) 
     )
   end
   table.insert(vote_gui_lines, conjunction:get_text())
@@ -129,7 +138,9 @@ end
 
 function setup_vote()
   conjunction = random_conjunction()
-  outcomes = draw_n_generators(all_outcomes, num_vote_options)
+  outcomes = draw_n_generators(all_outcomes, num_vote_options, function(candidate)
+    return conjunction:filter_outcome(candidate)
+  end)
   conditions = draw_n_generators(all_conditions, num_vote_options)
 end
 
@@ -142,6 +153,13 @@ function wait_opportunity()
   end
 end
 
+function force_vote(a, b)
+  local TT = {a=1, b=2, c=3, d=4, [1]=1, [2]=2, [3]=3, [4]=4}
+  outcomes[TT[a]].votes = 1000
+  conditions[TT[b]].votes = 1000
+  vote_time_left = 0
+end
+
 function vote_covenant()
   setup_vote()
   socket_send('{"kind": "open_voting"}')
@@ -152,7 +170,7 @@ function vote_covenant()
     vote_time_left = vote_time_left - 1
     wait(60)
   end
-  socket_send('{"kind": "close_voting"')
+  socket_send('{"kind": "close_voting"}')
   do_winner()
 end
 

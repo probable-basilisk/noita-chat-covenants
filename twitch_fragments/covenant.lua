@@ -49,9 +49,20 @@ function Covenant:is_live()
   return self.alive
 end
 
+-- should return true if this outcome can work with this
+-- covenant
+function Covenant:filter_outcome()
+  return true
+end
+
 UntilCovenant = Covenant:extend("UntilCovenant")
 function UntilCovenant:start(...)
   UntilCovenant.super.start(self, ...)
+  if not (self.outcome.start and self.outcome.stop) then
+    print("Outcome [" .. self.outcome.text .. "] is not startable!")
+    self.alive = false
+    return
+  end
   if self.condition:check() then
     self.alive = false
     return
@@ -72,62 +83,102 @@ function UntilCovenant:tick()
     self.outcome:stop()
     return
   end
-  self.outcome:apply_tick()
+  if self.outcome.tick then self.outcome:tick() end
 end
 
 function UntilCovenant:get_text()
-  return self.outcome:get_text() .. " UNTIL " .. self.condition:get_text()
+  return self.outcome.text .. " UNTIL " .. self.condition:get_text()
+end
+
+function UntilCovenant:filter_outcome(outcome)
+  -- an 'UNTIL' outcome needs to be continuous (can start and stop)
+  return outcome.start ~= nil
 end
 
 OnceCovenant = Covenant:extend("OnceCovenant")
 function OnceCovenant:tick()
   if not self.alive then return end
   if self.condition:check() then
-    self.outcome:apply_once()
+    self.outcome:apply()
     self.alive = false
   end
 end
 
 function OnceCovenant:get_text()
-  return self.outcome:get_text() .. " ONCE " .. self.condition:get_text()
+  return self.outcome.text .. " ONCE " .. self.condition:get_text()
+end
+
+function OnceCovenant:filter_outcome(outcome)
+  return outcome.apply ~= nil
 end
 
 EachCovenant = Covenant:extend("EachCovenant")
 function EachCovenant:tick()
   if self.condition:check() then
-    self.outcome:apply_tick()
+    self.outcome:apply()
   end
 end
 
 function EachCovenant:get_text()
-  return self.outcome:get_text() .. " EACH TIME " .. self.condition:get_text()
+  return self.outcome.text .. " EACH TIME " .. self.condition:get_text()
 end
 
--- Outcomes
-Outcome = class("Outcome")
-function Outcome:init(f, desc)
-  self.f = f
-  self.desc = desc or "something happens"
+function EachCovenant:filter_outcome(outcome)
+  return outcome.apply ~= nil
 end
 
-function Outcome:get_text()
-  return self.desc
+-- Outcomes --------
+--------------------
+
+local EVALUABLE_MT = {
+  __index = function(t, idx)
+    local raw = rawget(t, "_raw")
+    local v = raw[idx]
+    local holdout = rawget(t, "_holdout")
+    if holdout[idx] or (type(v) ~= "function") then return v end
+    local happy, result = pcall(v, raw)
+    if not happy then
+      print("Outcome error in field [" .. idx .. "]: " .. result)
+      return nil
+    end
+    return result
+  end,
+  __newindex = function(t, idx, val)
+    local raw = rawget(t, "_raw")
+    raw[idx] = val
+  end
+}
+
+function make_evaluable(t, holdout)
+  local ret = {_raw = t, _holdout = holdout or {
+    start = true, stop = true, tick = true, apply = true
+  }}
+  setmetatable(ret, EVALUABLE_MT)
+  return ret
 end
 
-function Outcome:start()
-  -- 'stateless' outcomes don't need to implement these
+function copy_outcome(t)
+  local ret = {}
+  for k, v in pairs(rawget(t, "_raw")) do
+    ret[k] = v
+  end
+  return make_evaluable(ret)
 end
 
-function Outcome:stop()
-  -- ^^
+local function tags_to_keys(tags)
+  local ret = {}
+  for _, v in ipairs(tags) do ret[v] = true end
+  return true
 end
 
-function Outcome:apply_tick()
-  self.f()
-end
-
-function Outcome:apply_once()
-  self.f()
+local next_uid = 1
+function register_outcome(options)
+  options.text = options.text or "Do something?"
+  options.required_tags = options.required_tags or {}
+  options.forbidden_tags = options.forbidden_tags or {}
+  options._uid = next_uid
+  next_uid = next_uid + 1
+  table.insert(all_outcomes, make_evaluable(options))
 end
 
 -- Conditions

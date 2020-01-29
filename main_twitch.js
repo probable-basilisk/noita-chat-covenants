@@ -10,6 +10,8 @@ const WS_PORT = 9090;
 const SECS_BETWEEN_VOTES = process.env.SECS_BETWEEN_VOTES || 10;
 const SECS_FOR_VOTE = process.env.SECS_FOR_VOTE || 60;
 
+const timeout = s => new Promise(res => setTimeout(res, s*1000));
+
 const wss = new ws.Server({ port: WS_PORT });
 console.log("WS listening on " + WS_PORT);
 
@@ -31,6 +33,33 @@ function noitaDoFile(fn) {
   }
   const fdata = fs.readFileSync(fn);
   noita.send(fdata);
+}
+
+async function noitaDoDir(dirpath, batch=10, delay=0.016) {
+  let batchCount = 0;
+  for(let fn of fs.readdirSync(dirpath)) {
+    console.log(fn);
+    if(fn.slice(-4) == ".lua") {
+      noita.send(`print("Doing ${fn}")`);
+      noitaDoFile(dirpath + "/" + fn);
+      batchCount += 1;
+      if(batchCount % batch == 0) {
+        await timeout(delay);
+      }
+    }
+  }
+}
+
+async function noitaLoadScripts() {
+  noita.send(`GamePrint('Chat covenants connected as ${getConnectionName(noita)}')`);
+  noita.send("set_print_to_socket(true)");
+  noitaDoFile("twitch_fragments/30log.lua");
+  noitaDoFile("twitch_fragments/covenant.lua");
+  noitaDoFile("twitch_fragments/conditions.lua");
+  noitaDoFile("twitch_fragments/outcomes.lua");
+  noitaDoFile("twitch_fragments/utils.lua");
+  await noitaDoDir("twitch_fragments/outcomes");
+  noitaDoFile("twitch_fragments/setup.lua");
 }
 
 // TODO: refactor all this into a common file
@@ -67,13 +96,7 @@ wss.on('connection', function connection(ws) {
       if (noita != ws) {
         console.log("Registering noita!");
         noita = ws;
-        ws.send(`GamePrint('Chat covenants connected as ${cname}')`);
-        ws.send("set_print_to_socket(true)");
-        noitaDoFile("twitch_fragments/30log.lua");
-        noitaDoFile("twitch_fragments/covenant.lua");
-        noitaDoFile("twitch_fragments/conditions.lua");
-        noitaDoFile("twitch_fragments/outcomes.lua");
-        noitaDoFile("twitch_fragments/setup.lua");
+        noitaLoadScripts();
       }
     } else if(jdata["kind"] === "open_voting") {
       openVoting();

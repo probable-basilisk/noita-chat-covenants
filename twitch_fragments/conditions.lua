@@ -38,13 +38,13 @@ function StatCondition:get_vote_text()
 end
 
 local stats = {
-  {"visit %d new locations", "places_visited", 1, 3},
-  {"pick up %d gold", "gold_all", 1, 500},
-  {"pick up %d hearts", "heart_containers", 1, 3},
-  {"pick up %d items", "items", 1, 5},
-  {"shoot %d times", "projectiles_shot", 1, 1000},
-  {"kick %d times", "kicks", 1, 200},
-  {"kill %d enemies", "enemies_killed", 1, 100}
+  {"visit %d new locations", "places_visited", 1, 1},
+  {"pick up %d gold", "gold_all", 1, 10},
+  {"pick up %d hearts", "heart_containers", 1, 1},
+  {"pick up %d items", "items", 1, 1},
+  {"shoot %d times", "projectiles_shot", 1, 10},
+  {"kick %d times", "kicks", 1, 10},
+  {"kill %d enemies", "enemies_killed", 1, 5}
 }
 
 for _, info in ipairs(stats) do
