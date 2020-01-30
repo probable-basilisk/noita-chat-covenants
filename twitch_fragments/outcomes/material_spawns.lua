@@ -56,7 +56,7 @@ register_outcome{
       quantity = 10000 -- LOL
     end
     -- just go ahead and assume cheatgui is installed
-    local entity = spawn{"data/hax/potion_empty.xml"}
+    local entity = spawn{"data/hax/potion_empty.xml", hole=true}
     AddMaterialInventoryMaterial(entity, self.material, quantity)
   end,
 }

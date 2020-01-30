@@ -101,7 +101,7 @@ function spawn(options)
     if options.hole or options.blackhole then
       EntityLoad("data/entities/projectiles/deck/black_hole.xml", x, y)
     end
-    print("Spawning ", options.xml or options[1], x, y)
+    --print("Spawning ", options.xml or options[1], x, y)
     entities[i] = EntityLoad(options.xml or options[1], x, y)
   end
   if #entities <= 1 then return entities[1] else return entities end
@@ -116,6 +116,14 @@ function resolve_localized_name(s, default)
   else
     return default or s
   end
+end
+
+function get_player_health()
+  local damagemodel = EntityGetFirstComponent(get_player(), "DamageModelComponent")
+  if not damagemodel then return 0, 0 end
+  local max_hp = tonumber(ComponentGetValue(damagemodel, "max_hp"))
+  local cur_hp = tonumber(ComponentGetValue(damagemodel, "hp"))
+  return cur_hp, max_hp
 end
 
 function twiddle_health(f)

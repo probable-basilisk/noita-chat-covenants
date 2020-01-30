@@ -63,6 +63,76 @@ for _, info in ipairs(stats) do
   end
 end
 
+TakeDamageCondition = Condition:extend("TakeDamageCondition")
+function TakeDamageCondition:init()
+  self:reset()
+end
+
+function TakeDamageCondition:reset()
+  self.last_hp = get_player_health()
+end
+
+function TakeDamageCondition:check()
+  local cur_hp = get_player_health()
+  local damaged = cur_hp < self.last_hp
+  self.last_hp = cur_hp
+  return damaged
+end
+
+function TakeDamageCondition:get_text()
+  return "take damage"
+end
+TakeDamageCondition.get_vote_text = TakeDamageCondition.get_text
+
+table.insert(all_conditions['each'], function()
+  return TakeDamageCondition()
+end)
+
+AirtimeCondition = Condition:extend("AirtimeCondition")
+function AirtimeCondition:init(target, inverted)
+  self.target = target
+  self.frames = 0
+  self.invert = inverted
+  if inverted then 
+    self.text = "stay on ground " 
+  else
+    self.text = "stay in air "
+  end
+end
+
+function AirtimeCondition:reset()
+  self.frames = 0
+end
+
+function AirtimeCondition:check()
+  local cdc = EntityGetFirstComponent(get_player(), "CharacterDataComponent")
+  local on_ground = ComponentGetValue(cdc, "is_on_ground") == "1"
+  if self.invert then on_ground = not on_ground end
+  if on_ground then
+    self.frames = 0
+  else
+    self.frames = self.frames + 1
+  end
+  local met = self.frames >= self.target
+  if met then self:reset() end
+  return met
+end
+
+function AirtimeCondition:get_text()
+  return self.text .. (self.target - self.frames)
+end
+
+function AirtimeCondition:get_vote_text()
+  return self.text .. self.target
+end
+
+table.insert(all_conditions['each'], function()
+  return AirtimeCondition(120, true)
+end)
+table.insert(all_conditions['each'], function()
+  return AirtimeCondition(120, false)
+end)
+
 MoveCondition = Condition:extend("MoveCondition")
 function MoveCondition:init(fstr, xmult, ymult, clamp, delta)
   self.delta = delta

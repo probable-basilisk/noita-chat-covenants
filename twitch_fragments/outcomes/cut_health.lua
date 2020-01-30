@@ -5,7 +5,7 @@ register_outcome{
   comment = "todo",
   rarity = 10,
   apply = function()
-    local percent_to_remove = 0.25;
+    local percent_to_remove = 0.10
     for _, player_entity in pairs( get_players() ) do
       local x, y = EntityGetTransform( player_entity )
       local hp = 0

@@ -13,9 +13,9 @@ register_outcome{
       "data/entities/props/physics_barrel_radioactive.xml"
     }
     async(function()
-      for i = 1, 350 do
+      for i = 1, 20 do
         spawn{rand_choice(barrel_entities), min_rad=50, max_rad=500}
-        wait(1)
+        wait(15)
       end
     end)
   end,

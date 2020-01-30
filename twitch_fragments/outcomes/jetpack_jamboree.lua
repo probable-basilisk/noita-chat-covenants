@@ -9,11 +9,11 @@ register_outcome{
     for _, entity in pairs( EntityGetInRadiusWithTag( x, y, 1024, "enemy" ) or {} ) do
       local animal_ais = EntityGetComponent( entity, "AnimalAIComponent" )
       for _, ai in pairs(animal_ais or {}) do
-        ComponentSetValues(ai, {can_fly="1"})
+        ComponentSetValue(ai, "can_fly", "1")
       end
       local path_finding = EntityGetFirstComponent( entity, "PathFindingComponent" );
       if path_finding then
-        ComponentSetValues(path_finding, {can_fly="1"})
+        ComponentSetValue(path_finding, "can_fly", "1")
       end
     
       local jetpack_particles = EntityAddComponent( entity, "ParticleEmitterComponent", {
