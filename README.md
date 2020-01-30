@@ -9,6 +9,6 @@ Noita Twitch integration experiment, super rough at the moment
 
 ## Running
 
-* Make sure node-ws-api is enabled
+* Make sure the ws-api mod is enabled
 * (in this repo's directory) `node main_twitch.js your_twitch_channel_name`
 * Start noita
