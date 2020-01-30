@@ -1,5 +1,6 @@
 # noita-chat-covenants
-Noita Twitch integration experiment, super rough at the moment
+Noita Twitch integration experiment: allows Twitch chat to vote on persistent 'covenants' like "Circle of acid each time player takes damage" and "low gravity until 1000 gold is collected". The covenants are like templates of the form: (outcome) each time (condition), or (continuous effect) until (condition), and chat votes independently on both the outcome and the condition.
+Super rough at the moment, not balanced at all, many combinations will probably crash noita.
 
 ## Installation
 
