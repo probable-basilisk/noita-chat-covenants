@@ -1,3 +1,5 @@
+-- TODO: need to think how this kind of long scripted should be treated
+--[[
 register_outcome{
   text = "Bomb Rush",
   subtext = "BOOM",
@@ -78,3 +80,4 @@ register_outcome{
     end)
   end,
 }
+]]

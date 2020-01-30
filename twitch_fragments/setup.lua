@@ -207,6 +207,43 @@ function restart_main()
   async(main_script)
 end
 
+function list_outcomes(mutate)
+  for idx, outcome in ipairs(all_outcomes) do
+    if mutate and outcome.mutate then outcome:mutate() end
+    local kind = "discrete"
+    if outcome.start then kind = "continuous" end
+    print(idx, ": ", outcome.text, "[" .. kind .. "]")
+  end
+end
+
+local in_progress_tests = {}
+function test_outcome(idx)
+  local outcome = all_outcomes[idx]
+  if outcome.apply then 
+    outcome:apply() 
+  elseif outcome.start then
+    outcome:start()
+    table.insert(in_progress_tests, outcome)
+    if outcome.tick then
+      print("Spinning up test outcome coroutine.")
+      async(function()
+        while outcome:is_live() do
+          outcome:tick()
+          wait(1)
+        end
+        print("Test outcome coroutine ended.")
+      end)
+    end
+  end
+end
+
+function stop_tests()
+  for idx, outcome in pairs(in_progress_tests) do
+    outcome:stop()
+  end
+  in_progress_tests = {}
+end
+
 add_persistent_func("update_covenants", update_covenants)
 add_persistent_func("twitch_gui", draw_twitch_display)
 

@@ -162,3 +162,31 @@ function add_text_to_entity(entity, text)
   } )
   return component
 end
+
+function get_player_wands()
+  local inven = nil
+  for _, child in ipairs(EntityGetAllChildren(get_player()) or {}) do
+    if EntityGetName(child) == "inventory_quick" then
+      inven = child
+      break
+    end
+  end
+  if not inven then return end
+  local wands = {}
+  for _, child_item in ipairs(EntityGetAllChildren(inven) or {}) do
+    if EntityHasTag(child_item, "wand") then
+      table.insert(wands, child_item)
+    end
+  end
+  return wands
+end
+
+function get_wand_spells(entity)
+  local spells = {}
+  for _, child in ipairs(EntityGetAllChildren(entity) or {}) do
+    if EntityHasTag(child, "card_action") then
+      table.insert(spells, child)
+    end
+  end
+  return spells
+end

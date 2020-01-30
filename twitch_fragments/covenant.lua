@@ -50,6 +50,7 @@ end
 function Covenant:is_live()
   return self.alive
 end
+Covenant.is_alive = Covenant.is_live -- alias
 
 -- should return true if this outcome can work with this
 -- covenant
