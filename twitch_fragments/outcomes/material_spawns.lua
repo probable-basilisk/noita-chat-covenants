@@ -5,7 +5,7 @@ end
 
 -- Note here we make "mutating" outcomes rather than clogging
 -- up the outcomes list with like thirty variations on circles
-register_outcome{
+register_outcome{add_position_modifier{
   text = "Circle of acid",
   subtext = "Who thought this was a good idea",
   bad = true,
@@ -15,11 +15,12 @@ register_outcome{
     self.text = "Circle of " .. self.text
   end,
   apply = function(self)
-    local circle = spawn{"data/entities/projectiles/deck/circle_acid.xml", hole=true}
+    local circle = spawn{"data/entities/projectiles/deck/circle_acid.xml", 
+                         hole=true, pos=self.position_target}
     local emitter_comp = EntityGetFirstComponent(circle, "ParticleEmitterComponent")
     ComponentSetValue(emitter_comp, "emitted_material_name", self.material or "acid")
   end,
-}
+}}
 
 -- Seas hard-crash the game for some reason!
 --[[
@@ -40,7 +41,7 @@ register_outcome{
   end,
 }]]
 
-register_outcome{
+register_outcome{add_position_modifier{
   text = "Flask of ...",
   subtext = "What's in it?",
   good = true,
@@ -56,10 +57,11 @@ register_outcome{
       quantity = 10000 -- LOL
     end
     -- just go ahead and assume cheatgui is installed
-    local entity = spawn{"data/hax/potion_empty.xml", hole=true}
+    local entity = spawn{"data/hax/potion_empty.xml", 
+                         hole=true, pos=self.position_target}
     AddMaterialInventoryMaterial(entity, self.material, quantity)
   end,
-}
+}}
 
 --[[
 register_outcome{
@@ -99,7 +101,7 @@ register_outcome{
   end,
 }]]
 
-register_outcome{
+register_outcome{add_position_modifier{
   text = "Rain of ...",
   subtext = "Some rain on your parade",
   comment = "todo",
@@ -108,8 +110,10 @@ register_outcome{
     self.material, self.text = unpack(rand_choice(LIQUIDS))
     self.text = "Rain of " .. self.text
   end,
+  possible_positions = {"above_player", "at_mouse", "above_enemy"},
   apply = function(self)
-    local cloud = spawn{"data/entities/projectiles/deck/cloud_water.xml", position=above_player{}}
+    local cloud = spawn{"data/entities/projectiles/deck/cloud_water.xml", 
+                        position=self.position_target}
     for _, child in pairs(EntityGetAllChildren(cloud) or {}) do
       for _, comp in pairs(EntityGetComponent(child, "ParticleEmitterComponent" ) or {} ) do
         if ComponentGetValue(comp, "emitted_material_name" ) == "water" then
@@ -118,4 +122,4 @@ register_outcome{
       end
     end
   end,
-}
+}}

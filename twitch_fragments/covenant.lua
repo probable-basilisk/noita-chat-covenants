@@ -177,16 +177,17 @@ local EVALUABLE_MT = {
 }
 
 function make_evaluable(t, holdout)
-  local ret = {_raw = t, _holdout = holdout or {
-    start = true, stop = true, tick = true, apply = true
-  }}
-  setmetatable(ret, EVALUABLE_MT)
+  -- local ret = {_raw = t, _holdout = holdout or {
+  --   start = true, stop = true, tick = true, apply = true
+  -- }}
+  -- setmetatable(ret, EVALUABLE_MT)
+  local ret = t
   return ret
 end
 
 function copy_outcome(t)
   local ret = {}
-  for k, v in pairs(rawget(t, "_raw")) do
+  for k, v in pairs(t) do --pairs(rawget(t, "_raw")) do
     ret[k] = v
   end
   return make_evaluable(ret)
@@ -200,6 +201,11 @@ end
 
 local next_uid = 1
 function register_outcome(options)
+  if (not options.text) and options[1] then 
+    options = options[1] 
+    print("Warn: " .. options.text .. " passed in with extra braces!")
+  end
+
   options.text = options.text or "Do something?"
   options.required_tags = options.required_tags or {}
   options.forbidden_tags = options.forbidden_tags or {}

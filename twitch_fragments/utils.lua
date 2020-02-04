@@ -1,3 +1,38 @@
+function weighted_choice(options, weight_func)
+  local new_opts = {}
+  local total_weight = 0.0
+  for k, thing in pairs(options) do
+    local w = weight_func(thing)
+    if w > 0.0 then
+      total_weight = total_weight + w
+      table.insert(new_opts, {w, thing, k})
+    end
+  end
+  local weighted_index = math.random() * total_weight
+  for _, candidate in ipairs(new_opts) do
+    weighted_index = weighted_index - candidate[1]
+    if weighted_index < 0.0 then
+      return candidate[2], candidate[3]
+    end
+  end
+end
+
+function weighted_n_choice(options, n, weight_func)
+  local _chosen = {}
+  local chosen = {}
+  for idx = 1, n do
+    -- create a temporary weight function that weights already
+    -- chosen options to zero
+    local temp_func = function(opt)
+      if _chosen[opt] then return 0.0 else return weight_func(opt) end
+    end
+    local new_choice = weighted_choice(options, temp_func)
+    _chosen[new_choice] = true
+    table.insert(chosen, new_choice)
+  end
+  return chosen
+end
+
 function get_player()
   return EntityGetWithTag("player_unit")[1]
 end
@@ -29,6 +64,12 @@ function get_mouse_pos()
 end
 mouse_pos = get_mouse_pos
 
+function get_any_enemy_pos(px, py)
+  local ent = get_closest_entity("homing_target")
+  if not ent then return mouse_pos() end
+  return EntityGetTransform(ent)
+end
+
 function teleport(x, y)
   EntitySetTransform(get_player(), x, y)
 end
@@ -55,13 +96,16 @@ function vicinity(pos, options)
     local theta = math.random()*theta_max
     x = x + math.cos(theta)*rad
     y = y + math.sin(theta)*rad
-    print(x, y)
     return FindFreePositionForBody(x, y, 300, 300, 30)
   end
 end
 
 function player_vicinity(options)
   return vicinity(player_pos, options)
+end
+
+function mouse_vicinity(options)
+  return vicinity(mouse_pos, options)
 end
 
 function below_player(options)

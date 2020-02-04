@@ -58,6 +58,7 @@ async function noitaLoadScripts() {
   noitaDoFile("twitch_fragments/conditions.lua");
   noitaDoFile("twitch_fragments/outcomes.lua");
   noitaDoFile("twitch_fragments/utils.lua");
+  noitaDoFile("twitch_fragments/modifiers.lua");
   await noitaDoDir("twitch_fragments/outcomes");
   noitaDoFile("twitch_fragments/setup.lua");
 }
