@@ -1,3 +1,5 @@
+-- TODO: fix this
+--[[
 register_outcome{
   text = "Shuffle",
   subtext = "OOF",
@@ -5,7 +7,7 @@ register_outcome{
   comment = "todo",
   rarity = 22.5,
   apply = function()
-    local wands = GetWands()
+    local wands = get_player_wands()
     if wands == nil then return end
     local to_boost = Random(1, table.getn(wands))
     
@@ -21,4 +23,4 @@ register_outcome{
     end
     end
   end,
-}
+}]]

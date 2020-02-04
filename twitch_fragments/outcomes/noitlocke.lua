@@ -1,3 +1,5 @@
+-- TODO: fix this
+--[[
 local function freeze_wands(frozen)
   local fkey = (frozen and "1") or "0"
   local wands = GetWands()
@@ -32,4 +34,4 @@ register_outcome{
     if self.frame % 120 ~= 0 then return end
     freeze_wands(true)
   end
-}
+}]]

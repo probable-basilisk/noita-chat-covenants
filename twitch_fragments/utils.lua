@@ -1,4 +1,4 @@
-function weighted_choice(options, weight_func)
+function mapped_weighted_choice(options, weight_func)
   local new_opts = {}
   local total_weight = 0.0
   for k, thing in pairs(options) do
@@ -17,6 +17,14 @@ function weighted_choice(options, weight_func)
   end
 end
 
+-- assumes choices are passed in as {option, weight} pairs
+function weighted_choice(options)
+  local c = mapped_weighted_choice(options, function(opt)
+    return opt[2] or 1.0
+  end)
+  return c[1]
+end
+
 function weighted_n_choice(options, n, weight_func)
   local _chosen = {}
   local chosen = {}
@@ -26,7 +34,7 @@ function weighted_n_choice(options, n, weight_func)
     local temp_func = function(opt)
       if _chosen[opt] then return 0.0 else return weight_func(opt) end
     end
-    local new_choice = weighted_choice(options, temp_func)
+    local new_choice = mapped_weighted_choice(options, temp_func)
     _chosen[new_choice] = true
     table.insert(chosen, new_choice)
   end
@@ -183,6 +191,16 @@ function twiddle_health(f)
   end
 end
 
+local function set_health(cur_hp, max_hp)
+  local damagemodels = EntityGetComponent( get_player(), "DamageModelComponent" )
+  if( damagemodels ~= nil ) then
+    for i,damagemodel in ipairs(damagemodels) do
+      ComponentSetValue( damagemodel, "max_hp", max_hp)
+      ComponentSetValue( damagemodel, "hp", cur_hp)
+    end
+  end
+end
+
 function symmetric_rand(mag) 
   return (math.random() * 2.0 - 1.0) * (mag or 1.0)
 end
@@ -250,4 +268,9 @@ function frames_as_secs(frames)
   else
     return ("%0.2fs"):format(secs)
   end
+end
+
+-- just convenience to convert seconds->frames
+function seconds(s)
+  return s*60
 end

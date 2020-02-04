@@ -1,6 +1,6 @@
 -- {effect_name, whether_good}
 local EFFECTS = {
-  {"BLINDNESS", "Blindness", false},
+  --{"BLINDNESS", "Blindness", false},
   {"CONFUSION", "Confusion", false},
   {"WORM_ATTRACTOR", "Attract worms", false},
   {"DRUNK", "Drunk", false},
@@ -53,5 +53,15 @@ register_outcome{
     local player = get_player()
     local game_effect = GetGameEffectLoadTo( player, "ELECTROCUTION", true )
     if game_effect then ComponentSetValue( game_effect, "frames", 120 ) end
+  end,
+}
+
+register_outcome{
+  text = "Temporary blindness",
+  bad = true,
+  apply = function()
+    local player = get_player()
+    local game_effect = GetGameEffectLoadTo( player, "BLINDNESS", true )
+    if game_effect then ComponentSetValue( game_effect, "frames", seconds(15) ) end
   end,
 }

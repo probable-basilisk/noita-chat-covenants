@@ -4,7 +4,7 @@ register_outcome{
   good = true,
   comment = "todo",
   rarity = 15,
-  cooldown = 60*60*1,
+  cooldown = seconds(30),
   apply = function()
     local x, y = get_player_pos()
     SetRandomSeed( GameGetFrameNum(), x + y )

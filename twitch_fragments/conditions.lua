@@ -41,12 +41,12 @@ end
 
 local stats = {
   {"visit %d new locations", "places_visited", 1, 2},
-  {"pick up %d gold", "gold_all", 10, 1000},
+  {"pick up %d gold", "gold_all", 10, 750},
   {"pick up %d hearts", "heart_containers", false, 1},
-  {"pick up %d items", "items", 1, 10},
+  {"pick up %d items", "items", 1, 3},
   {"shoot %d times", "projectiles_shot", 10, false},
   {"kick %d times", "kicks", 1, false},
-  {"kill %d enemies", "enemies_killed", 1, 50}
+  {"kill %d enemies", "enemies_killed", 1, 20}
 }
 
 for _, info in ipairs(stats) do
@@ -174,10 +174,10 @@ function MoveCondition:get_vote_text()
 end
 
 local moves = {
-  {"descend %d units", 0, 1, true, 200, 3000},
-  {"ascend %d units", 0, -1, true, 200, 3000},
-  {"travel %d units", 1.0, 1.0, false, 200, 3000},
-  {"move horizontally %d units", 1.0, 0.0, false, 200, 3000}
+  {"descend %d units", 0, 1, true, 200, 6000},
+  {"ascend %d units", 0, -1, true, 200, 6000},
+  {"travel %d units", 1.0, 1.0, false, 200, 6000},
+  --{"move horizontally %d units", 1.0, 0.0, false, 200, 3000}
 }
 
 for _, info in ipairs(moves) do

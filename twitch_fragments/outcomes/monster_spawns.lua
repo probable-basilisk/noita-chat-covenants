@@ -1,4 +1,4 @@
-local SPAWN_COOLDOWN = 600 -- let's not go overboard spawning things
+local SPAWN_COOLDOWN = seconds(10) -- let's not go overboard spawning things
 
 register_outcome{add_position_modifier{
   text = "Angry Steve",
@@ -70,34 +70,37 @@ register_outcome{add_position_modifier{
 }}
 
 register_outcome{add_position_modifier{
-  text = "THE MOIST MOB",
+  text = "MOIST MOB MEMBER",
   subtext = "Slurp slurp slurp",
   cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "todo",
   rarity = 34,
   apply = function(self)
-    spawn{"data/entities/animals/frog_big.xml", hole=true,
-          pos=self.position_target}
-    spawn{"data/entities/animals/frog.xml", hold=true, count=math.random(3,10),
-          pos=self.position_target}
+    if math.random() < 0.1 then
+      spawn{"data/entities/animals/frog_big.xml", hole=true,
+            pos=self.position_target}
+    else
+      spawn{"data/entities/animals/frog.xml", hole=true, count=math.random(1,2),
+            pos=self.position_target}
+    end
   end,
 }}
 
 register_outcome{add_position_modifier{
-  text = "plaGUEE Rats",
+  text = "plaGUEE rat",
   subtext = "Hail the rat king",
   cooldown = SPAWN_COOLDOWN,
   bad = true,
   comment = "Spawns a bunch of normal rats, plague rats and 1 to 2 skullrats",
   rarity = 36,
   apply = function(self)
-    spawn{"data/entities/animals/rat.xml", count=math.random(20,30),
-          pos=self.position_target}
-    spawn{"data/entities/misc/perks/plague_rats_rat.xml", count=math.random(10,20),
-          pos=self.position_target}
-    spawn{"data/entities/animals/skullrat.xml", count=math.random(1,2),
-          pos=self.position_target}
+    local ent_xml = weighted_choice{
+      {"data/entities/animals/rat.xml", 20},
+      {"data/entities/misc/perks/plague_rats_rat.xml", 10},
+      {"data/entities/animals/skullrat.xml", 1}
+    }
+    spawn{ent_xml, pos=self.position_target}
   end,
 }}
 
@@ -122,7 +125,7 @@ register_outcome{add_position_modifier{
   comment = "todo",
   rarity = 45.5,
   apply = function(self)
-    spawn{"data/entities/animals/worm_tiny.xml", count=10,
+    spawn{"data/entities/animals/worm_tiny.xml", count=3,
           pos=self.position_target}
   end,
 }}
