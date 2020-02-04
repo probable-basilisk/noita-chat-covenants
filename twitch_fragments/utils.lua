@@ -198,3 +198,12 @@ function get_wand_spells(entity)
   end
   return spells
 end
+
+function frames_as_secs(frames)
+  local secs = frames / 60.0
+  if secs > 10 then
+    return ("%d"):format(secs)
+  else
+    return ("%0.2fs"):format(secs)
+  end
+end

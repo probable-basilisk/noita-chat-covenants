@@ -65,17 +65,3 @@ function copy(options)
   for k, v in pairs(options) do ret[k] = v end
   return ret
 end
-
-function register_effect(options)
-  options.start = function(self)
-    local player = get_player()
-    self.effect = GetGameEffectLoadTo(player, self.effect_name, true)
-    ComponentSetValue(self.effect, "frames", -1)
-  end
-  options.stop = function(self)
-    if not self.effect then return end
-    ComponentSetValue(self.effect, "frames", 1)
-    self.effect = nil
-  end
-  register_outcome(options)
-end

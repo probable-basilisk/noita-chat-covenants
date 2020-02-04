@@ -19,6 +19,20 @@ local EFFECTS = {
   {"MELEE_COUNTER", "Melee counterhit", true}
 }
 
+local function register_effect(options)
+  options.start = function(self)
+    local player = get_player()
+    self.effect = GetGameEffectLoadTo(player, self.effect_name, true)
+    ComponentSetValue(self.effect, "frames", -1)
+  end
+  options.stop = function(self)
+    if not self.effect then return end
+    ComponentSetValue(self.effect, "frames", 1)
+    self.effect = nil
+  end
+  register_outcome(options)
+end
+
 for _, effect_info in ipairs(EFFECTS) do
   local code_name, text, good = unpack(effect_info)
   register_effect{

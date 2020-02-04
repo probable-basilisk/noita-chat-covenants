@@ -119,11 +119,11 @@ function AirtimeCondition:check()
 end
 
 function AirtimeCondition:get_text()
-  return self.text .. (self.target - self.frames)
+  return self.text .. frames_as_secs(self.target - self.frames)
 end
 
 function AirtimeCondition:get_vote_text()
-  return self.text .. self.target
+  return self.text .. frames_as_secs(self.target)
 end
 
 table.insert(all_conditions['each'], function()
@@ -250,7 +250,7 @@ end
 JetpackCondition = Condition:extend("JetpackCondition")
 function JetpackCondition:init(frames)
   self.target = frames
-  self.fstr = "use jetpack %d"
+  self.fstr = "use jetpack "
   self:reset()
 end
 
@@ -269,11 +269,11 @@ function JetpackCondition:check()
 end
 
 function JetpackCondition:get_text()
-  return self.fstr:format(self.target - self.jetpack_count)
+  return self.fstr .. frames_as_secs(self.target - self.jetpack_count)
 end
 
 function JetpackCondition:get_vote_text()
-  return self.fstr:format(self.target)
+  return self.fstr .. frames_as_secs(self.target)
 end
 
 table.insert(all_conditions['each'], function(d)

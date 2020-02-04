@@ -10,8 +10,13 @@ ypos_vote = ypos_vote or 30
 max_covenants = 3
 
 vote_time_left = 0
-max_vote_time = 6000
-time_between_covenants = 120
+max_vote_time = 80
+time_between_covenants = 240
+
+-- this will show up in the same directory as noita.exe
+-- (so you can use it as the source of an obs text overlay)
+write_vote_gui_to_file = false
+vote_gui_filename = "obs.txt"
 
 function draw_twitch_display()
   GuiStartFrame( gui )
@@ -20,11 +25,21 @@ function draw_twitch_display()
     GuiText(gui, 0, 0, line)
   end
   GuiLayoutEnd( gui )
-  GuiLayoutBeginVertical( gui, xpos_vote, ypos_vote )
-  for idx, line in ipairs(vote_gui_lines) do
-    GuiText(gui, 0, 0, line)
+  if not write_vote_gui_to_file then
+    GuiLayoutBeginVertical( gui, xpos_vote, ypos_vote )
+    for idx, line in ipairs(vote_gui_lines) do
+      GuiText(gui, 0, 0, line)
+    end
+    GuiLayoutEnd( gui )
   end
-  GuiLayoutEnd( gui )
+end
+
+function write_lines_to_file(fn, lines)
+  local f = io.open(fn, "wt")
+  for _, line in ipairs(lines) do
+    f:write(line, "\n")
+  end
+  f:close()
 end
 
 covenants = {}
@@ -153,6 +168,10 @@ function update_vote_display()
       vote_gui_lines, 
       ("%s> %s (%d)"):format(condition_keys[idx], condition:get_vote_text(), condition.votes) 
     )
+  end
+
+  if write_vote_gui_to_file then
+    write_lines_to_file(vote_gui_filename, vote_gui_lines)
   end
 end
 

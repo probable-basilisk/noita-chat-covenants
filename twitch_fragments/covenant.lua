@@ -144,7 +144,7 @@ end
 function EachCovenant:get_text()
   local text = self.outcome.text .. " EACH TIME " .. self.condition:get_text()
   if self._cooldown > 0 then
-    text = "[" .. self._cooldown .. "] " .. text
+    text = "[" .. frames_as_secs(self._cooldown) .. "] " .. text
     if self._should_fire then text = "+" .. text end
   end
   return text
