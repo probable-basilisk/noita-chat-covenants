@@ -4,7 +4,7 @@ register_outcome{add_position_modifier{
   good = true,
   comment = "todo",
   rarity = 50,
-  apply = function()
+  apply = function(self)
     local ent_xml = weighted_choice{
       {"data/entities/items/pickup/goldnugget_10.xml", 10000},
       {"data/entities/items/pickup/goldnugget_50.xml", 1000},
@@ -22,7 +22,7 @@ register_outcome{
   good = true,
   comment = "todo",
   rarity = 50,
-  apply = function()
+  apply = function(self)
     spawn{"data/entities/items/pickup/goldnugget.xml", 
           count=math.random(15,30)}
   end,
