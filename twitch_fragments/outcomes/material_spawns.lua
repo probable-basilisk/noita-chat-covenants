@@ -1,6 +1,14 @@
+local BAD_LIQUIDS = {
+  plastic_molten = true,
+  plastic_prop_molten = true,
+  plaastic_red_molten = true
+}
+
 local LIQUIDS = {}
 for _, v in ipairs(CellFactory_GetAllLiquids()) do 
-  table.insert(LIQUIDS, {v, resolve_localized_name("$mat_" .. v)})
+  if not BAD_LIQUIDS[v] then
+    table.insert(LIQUIDS, {v, resolve_localized_name("$mat_" .. v)})
+  end
 end
 
 -- Note here we make "mutating" outcomes rather than clogging
@@ -58,7 +66,7 @@ register_outcome{add_position_modifier{
     end
     -- just go ahead and assume cheatgui is installed
     local entity = spawn{"data/hax/potion_empty.xml", 
-                         hole=true, pos=self.position_target}
+                         pos=self.position_target}
     AddMaterialInventoryMaterial(entity, self.material, quantity)
   end,
 }}
